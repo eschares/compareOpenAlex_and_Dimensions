@@ -61,10 +61,10 @@ st.plotly_chart(fig, theme=None)#, template='plotly'
 #template can be plotly, plotly_dark, ggplot2, seaborn
 
 
-
-figzoomed = px.scatter(merged_wide, x='count_Dimensions', y='count_OpenAlex',
+filt = (merged_wide['count_Dimensions']<=3000)
+figzoomed = px.scatter(merged_wide[filt], x='count_Dimensions', y='count_OpenAlex', color='ISSN',
                  hover_data='ISSN-year_tag',
-                 title='<b>ZOOMED IN</b>: X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years')
+                 title='<b>ZOOMED IN</b>: X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years<br>Colored by ISSN')
                  #template='plotly_dark')
 # facet_row='DocType_normalized')
 
@@ -85,7 +85,7 @@ st.plotly_chart(figzoomed, theme=None)#, template='plotly'
 
 
 
-
+st.subheader('Residuals, Dim/OpenAlex ratio')
 fig2 = px.histogram(merged_wide, x='Dim/OpenAlex', marginal='box',
              hover_data='ISSN-year_tag',
              title='Histogram and boxplot of Dim/OpenAlex count, research + review articles for 4824 Gold ISSN-years<br>>1 means Dimensions found more<br>Click and zoom in')
@@ -94,7 +94,20 @@ fig2.update_layout(height=500)#, width=1000)
 st.plotly_chart(fig2, theme=None)
 
 
+
+st.write('---')
 st.header("Look at some ISSNs that don't match well")
+
+issn = '2468-0249'
+fig7 = px.bar(merged_wide[merged_wide['ISSN-year_tag'].str.contains(issn)], x='year', y=['count_Dimensions', 'count_OpenAlex'], barmode='group',
+             title=f'ISSN {issn} Kidney International Reports',
+             color_discrete_map = {'count_Dimensions': px.colors.qualitative.Plotly[0], #blue
+                                   'count_OpenAlex': px.colors.qualitative.Plotly[1]},
+            template = 'plotly') #red  # facet_col='DocType_normalized')
+
+st.plotly_chart(fig7, theme=None)
+
+
 issn = '2475-0379'
 fig3 = px.bar(merged_wide[merged_wide['ISSN-year_tag'].str.contains(issn)], x='year', y=['count_Dimensions', 'count_OpenAlex'], barmode='group',
              title=f'ISSN {issn} Research and Practice in Thrombosis and Haemostasis',
@@ -103,6 +116,36 @@ fig3 = px.bar(merged_wide[merged_wide['ISSN-year_tag'].str.contains(issn)], x='y
             template = 'plotly') #red  # facet_col='DocType_normalized')
 
 st.plotly_chart(fig3, theme=None)
+
+
+issn = '2590-177X'
+fig4 = px.bar(merged_wide[merged_wide['ISSN-year_tag'].str.contains(issn)], x='year', y=['count_Dimensions', 'count_OpenAlex'], barmode='group',
+             title=f'ISSN {issn} Journal of Biomedical Informatics: X',
+             color_discrete_map = {'count_Dimensions': px.colors.qualitative.Plotly[0], #blue
+                                   'count_OpenAlex': px.colors.qualitative.Plotly[1]},
+            template = 'plotly') #red  # facet_col='DocType_normalized')
+
+st.plotly_chart(fig4, theme=None)
+
+issn = '2590-1583'
+fig5 = px.bar(merged_wide[merged_wide['ISSN-year_tag'].str.contains(issn)], x='year', y=['count_Dimensions', 'count_OpenAlex'], barmode='group',
+             title=f'ISSN {issn} Gene: X',
+             color_discrete_map = {'count_Dimensions': px.colors.qualitative.Plotly[0], #blue
+                                   'count_OpenAlex': px.colors.qualitative.Plotly[1]},
+            template = 'plotly') #red  # facet_col='DocType_normalized')
+
+st.plotly_chart(fig5, theme=None)
+
+issn = '2772-4085'
+fig6 = px.bar(merged_wide[merged_wide['ISSN-year_tag'].str.contains(issn)], x='year', y=['count_Dimensions', 'count_OpenAlex'], barmode='group',
+             title=f'ISSN {issn} Neuroscience Applied',
+             color_discrete_map = {'count_Dimensions': px.colors.qualitative.Plotly[0], #blue
+                                   'count_OpenAlex': px.colors.qualitative.Plotly[1]},
+            template = 'plotly') #red  # facet_col='DocType_normalized')
+
+st.plotly_chart(fig6, theme=None)
+
+
 
 
 st.subheader('Data sorted by Dim/OpenAlex column, biggest difference first')
