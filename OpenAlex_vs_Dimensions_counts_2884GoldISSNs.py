@@ -2,9 +2,11 @@
 # Eric Schares, 8/12/24
 
 import pandas as pd
-import plotly.express as px
 import streamlit as st
-import plotly.io as pio
+# reset Plotly theme after streamlit import
+#import plotly.io as pio
+import plotly.express as px
+#pio.templates.default = 'plotly_dark' 
 
 # had used plotly#==5.10.0
 #streamlit#==1.13.0
@@ -12,8 +14,6 @@ import plotly.io as pio
 
 
 #st. set_page_config(layout="wide")
-
-pio.templates.default = "plotly"
 
 st.header('Compare OpenAlex and Dimensions article counts')
 st.write('Eric Schares, 8/12/24')
@@ -43,16 +43,20 @@ st.header('Inner merge')
 fig2 = px.scatter(merged_wide, x='count_Dimensions', y='count_OpenAlex',
                  hover_data='ISSN-year_tag',
                  title='X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years',
-                 )#template='seaborn')
+                 template='plotly_dark')
 # facet_row='DocType_normalized')
 
 fig2.add_shape(type="line",
               x0=1, y0=0, x1=23000, y1=23000,
               line=dict(color="Purple", width=1, dash="dot"), col='all', row='all')
 
-fig2.update_layout(height=600)
+fig2.update_layout(height=600)#, template='plotly')
+#fig2.update_layout(template='plotly')
+#fig2.update_layout(paper_bgcolor='rgb(0,0,0)', plot_bgcolor='rgb(0,0,0)')
 
-st.plotly_chart(fig2)
+st.plotly_chart(fig2, theme=None)#, config=dict(template='seaborn'))
+
+
 
 
 fig3 = px.histogram(merged_wide, x='Dim/OpenAlex', marginal='box',
