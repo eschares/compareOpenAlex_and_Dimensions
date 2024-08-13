@@ -4,9 +4,10 @@
 import pandas as pd
 import streamlit as st
 # reset Plotly theme after streamlit import
-#import plotly.io as pio
+import plotly.io as pio
 import plotly.express as px
-#pio.templates.default = 'plotly_dark' 
+
+pio.templates.default = 'plotly' 
 
 # had used plotly#==5.10.0
 #streamlit#==1.13.0
@@ -40,41 +41,68 @@ st.header('Inner merge')
 
 
 
-fig2 = px.scatter(merged_wide, x='count_Dimensions', y='count_OpenAlex',
+fig = px.scatter(merged_wide, x='count_Dimensions', y='count_OpenAlex',
                  hover_data='ISSN-year_tag',
-                 title='X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years',
-                 template='plotly_dark')
+                 title='X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years')
+                 #template='plotly_dark')
 # facet_row='DocType_normalized')
 
-fig2.add_shape(type="line",
+fig.add_shape(type="line",
               x0=1, y0=0, x1=23000, y1=23000,
               line=dict(color="Purple", width=1, dash="dot"), col='all', row='all')
 
-fig2.update_layout(height=600)#, template='plotly')
-#fig2.update_layout(template='plotly')
-#fig2.update_layout(paper_bgcolor='rgb(0,0,0)', plot_bgcolor='rgb(0,0,0)')
+fig.update_layout(height=600)#, width=1000)
+#fig.update_layout(template='plotly')
+#fig.update_layout(paper_bgcolor='rgb(0,0,0)', plot_bgcolor='rgb(0,0,0)')
 
-st.plotly_chart(fig2, theme=None)#, config=dict(template='seaborn'))
+st.plotly_chart(fig, theme=None)#, template='plotly'
+#st.plotly_chart(fig, template='plotly_dark')#, template='plotly'
+# theme can be 'streamlit' or None
+#template can be plotly, plotly_dark, ggplot2, seaborn
+
+
+
+figzoomed = px.scatter(merged_wide, x='count_Dimensions', y='count_OpenAlex',
+                 hover_data='ISSN-year_tag',
+                 title='<b>ZOOMED IN</b>: X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years')
+                 #template='plotly_dark')
+# facet_row='DocType_normalized')
+
+figzoomed.add_shape(type="line",
+              x0=1, y0=0, x1=23000, y1=23000,
+              line=dict(color="Purple", width=1, dash="dot"), col='all', row='all')
+
+figzoomed.update_layout(height=600)#, width=1000)
+figzoomed.update_xaxes(range=[-400,3600])
+figzoomed.update_yaxes(range=[-400,4600])
+#fig.update_layout(template='plotly')
+#fig.update_layout(paper_bgcolor='rgb(0,0,0)', plot_bgcolor='rgb(0,0,0)')
+
+st.plotly_chart(figzoomed, theme=None)#, template='plotly'
+#st.plotly_chart(fig, template='plotly_dark')#, template='plotly'
+# theme can be 'streamlit' or None
+#template can be plotly, plotly_dark, ggplot2, seaborn
 
 
 
 
-fig3 = px.histogram(merged_wide, x='Dim/OpenAlex', marginal='box',
+fig2 = px.histogram(merged_wide, x='Dim/OpenAlex', marginal='box',
              hover_data='ISSN-year_tag',
-             title='Histogram and boxplot of Dim/OpenAlex count, research + review articles for 4824 Gold ISSN-years<br>>1 means Dimensions found more')
+             title='Histogram and boxplot of Dim/OpenAlex count, research + review articles for 4824 Gold ISSN-years<br>>1 means Dimensions found more<br>Click and zoom in')
 
-st.plotly_chart(fig3)
+fig2.update_layout(height=500)#, width=1000)
+st.plotly_chart(fig2, theme=None)
 
 
-st.header("Look at some that don't match well")
+st.header("Look at some ISSNs that don't match well")
 issn = '2475-0379'
-fig = px.bar(merged_wide[merged_wide['ISSN-year_tag'].str.contains(issn)], x='year', y=['count_Dimensions', 'count_OpenAlex'], barmode='group',
+fig3 = px.bar(merged_wide[merged_wide['ISSN-year_tag'].str.contains(issn)], x='year', y=['count_Dimensions', 'count_OpenAlex'], barmode='group',
              title=f'ISSN {issn} Research and Practice in Thrombosis and Haemostasis',
              color_discrete_map = {'count_Dimensions': px.colors.qualitative.Plotly[0], #blue
                                    'count_OpenAlex': px.colors.qualitative.Plotly[1]},
             template = 'plotly') #red  # facet_col='DocType_normalized')
 
-st.plotly_chart(fig)
+st.plotly_chart(fig3, theme=None)
 
 
 st.subheader('Data sorted by Dim/OpenAlex column, biggest difference first')
