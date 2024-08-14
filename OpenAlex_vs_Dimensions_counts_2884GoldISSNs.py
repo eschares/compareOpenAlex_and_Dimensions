@@ -20,14 +20,14 @@ st.header('Compare OpenAlex and Dimensions article counts')
 st.write('Eric Schares, 8/12/24')
 st.write('Using OpenAlex new `article` classification, released 7/29/24. Reclassifies articles into editorials, letters, erratum, etc.')
 st.write('**How does this new mapping compare to Dimensions?**')
-st.write('- Pulled the counts of articles in OpenAlex for 2,882 Gold journals as defined in the APC dataset, looking at years 2019-2023. Data collected was ISSN, Year, DocType, and Count.')
+st.write('- Pulled the counts of articles in OpenAlex for 2,884 Gold journals as defined in the APC dataset, looking at years 2019-2023. Data collected was ISSN, Year, DocType, and Count.')
 st.write('- Used API call `https://api.openalex.org/works?per_page=200&filter=primary_location.source.issn:XXXX-XXXX,publication_year:YYYY&group_by=type`')
 st.write('- For **Dimensions**, previously pulled data for >8700 individual journals * 5 years each in April 2024. Used document type filters `(PT=Article, DT=Research Article OR Review Article)`, nothing for OpenAlex.')
 st.write('Compare inner merge counts of OpenAlex `research + review` types with Dimensions `PT=article, DT=research or review`')
 
 st.write('---')
 st.subheader('Summary stats')
-st.write('**OpenAlex**: 2,884 Gold ISSNs * 5 years, looking at `article + review` types only = 11,821 ISSN-year combinations')
+st.write('**OpenAlex**: 2,884 Gold ISSNs * 5 years, filtering to `article + review` types sum only = 11,821 ISSN-year combinations')
 st.write('Inner merge with **Dimensions** results in 8,309 ISSN-year combinations that have data in both databases')
 
 merged_wide = pd.read_csv('innermerged_Dimensions_and_OpenAlex_wideform.csv')
@@ -61,11 +61,18 @@ st.plotly_chart(fig, theme=None)#, template='plotly'
 #template can be plotly, plotly_dark, ggplot2, seaborn
 
 
-filt = (merged_wide['count_Dimensions']<=3000)
+
+to_color = {'0021-9258', '1053-8119', '1201-9712', '1935-861X', '1935-2735', '2041-4889', '2050-0904', '2059-7029', '2296-858X', '2352-4847', '2451-8301', '2468-0249', '2475-0379', '2475-2991', '2666-1683', '2667-2421', '2767-3375', '2772-4085'}
+#group_color = {i: 'red' for i in subset}
+#group_color = {i: 'red' for i not in to_color}
+#group_color = {i: 'red' for i in merged_wide['ISSN']}
+group_color = {i: 'blue' for i in merged_wide['ISSN'] if i not in to_color}
+group_color
+filt = (merged_wide['count_Dimensions']<=2200)
 figzoomed = px.scatter(merged_wide[filt], x='count_Dimensions', y='count_OpenAlex', color='ISSN',
+                 color_discrete_map = group_color,
                  hover_data='ISSN-year_tag',
-                 title='<b>ZOOMED IN</b>: X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years<br>Colored by ISSN')
-                 #template='plotly_dark')
+                 title='<b>ZOOMED IN</b>: X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years<br>Colored by selected ISSN')
 # facet_row='DocType_normalized')
 
 figzoomed.add_shape(type="line",
@@ -73,8 +80,8 @@ figzoomed.add_shape(type="line",
               line=dict(color="Purple", width=1, dash="dot"), col='all', row='all')
 
 figzoomed.update_layout(height=600)#, width=1000)
-figzoomed.update_xaxes(range=[-400,3600])
-figzoomed.update_yaxes(range=[-400,4600])
+figzoomed.update_xaxes(range=[-300,2200])
+figzoomed.update_yaxes(range=[-300,3200])
 #fig.update_layout(template='plotly')
 #fig.update_layout(paper_bgcolor='rgb(0,0,0)', plot_bgcolor='rgb(0,0,0)')
 
