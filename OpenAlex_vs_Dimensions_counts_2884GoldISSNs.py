@@ -20,15 +20,17 @@ st.header('Compare OpenAlex and Dimensions article counts')
 st.write('Eric Schares, 8/12/24')
 st.write('Using OpenAlex new `article` classification, released 7/29/24. Reclassifies articles into editorials, letters, erratum, etc.')
 st.write('**How does this new mapping compare to Dimensions?**')
-st.write('- Pulled the counts of articles in OpenAlex for 2,884 Gold journals as defined in the APC dataset, looking at years 2019-2023. Data collected was ISSN, Year, DocType, and Count.')
+st.write('- Pulled the counts of articles in OpenAlex for 2,884 Gold journals as defined in the [APC dataset](https://arxiv.org/abs/2406.08356), looking at years 2019-2023. Data collected was ISSN, Year, DocType, and Count.')
 st.write('- Used API call `https://api.openalex.org/works?per_page=200&filter=primary_location.source.issn:XXXX-XXXX,publication_year:YYYY&group_by=type`')
-st.write('- For **Dimensions**, previously pulled data for >8700 individual journals * 5 years each in April 2024. Used document type filters `(PT=Article, DT=Research Article OR Review Article)`, nothing for OpenAlex.')
-st.write('Compare inner merge counts of OpenAlex `research + review` types with Dimensions `PT=article, DT=research or review`')
+st.write('- For **Dimensions**, had previously pulled data for all >8700 individual journals in APC dataset * 5 years each in April 2024. Used document type filters `(PT=Article, DT=Research Article OR Review Article)`.')
+st.write('Compare the inner merge counts of OpenAlex `research + review` types with Dimensions `PT=article, DT=research or review`')
+st.write('**Conclusion:** article counts match better than older classification system, but OpenAlex still returns higher counts in journals that have high rates of conference abstracts. Can be partially detected with "Supplement" or "S" in the `issue` field, or a page number beginning with "S".')
+st.write('Example `https://api.openalex.org/works/W4327958276` has `biblio[first_page]`= "S306"')
 
 st.write('---')
 st.subheader('Summary stats')
 st.write('**OpenAlex**: 2,884 Gold ISSNs * 5 years, filtering to `article + review` types sum only = 11,821 ISSN-year combinations')
-st.write('Inner merge with **Dimensions** results in 8,309 ISSN-year combinations that have data in both databases')
+st.write('Inner merge with **Dimensions** resulted in 8,309 ISSN-year combinations with data returned by both databases')
 
 merged_wide = pd.read_csv('innermerged_Dimensions_and_OpenAlex_wideform.csv')
 
@@ -43,7 +45,7 @@ st.header('Inner merge')
 
 fig = px.scatter(merged_wide, x='count_Dimensions', y='count_OpenAlex',
                  hover_data='ISSN-year_tag',
-                 title='X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years')
+                 title='X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years')
                  #template='plotly_dark')
 # facet_row='DocType_normalized')
 
@@ -67,12 +69,12 @@ to_color = {'0021-9258', '1053-8119', '1201-9712', '1935-861X', '1935-2735', '20
 #group_color = {i: 'red' for i not in to_color}
 #group_color = {i: 'red' for i in merged_wide['ISSN']}
 group_color = {i: 'blue' for i in merged_wide['ISSN'] if i not in to_color}
-group_color
+#group_color
 filt = (merged_wide['count_Dimensions']<=2200)
 figzoomed = px.scatter(merged_wide[filt], x='count_Dimensions', y='count_OpenAlex', color='ISSN',
                  color_discrete_map = group_color,
                  hover_data='ISSN-year_tag',
-                 title='<b>ZOOMED IN</b>: X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review Counts<br>Pulled 2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years<br>Colored by selected ISSN')
+                 title='<b>ZOOMING IN</b>: X-Y Scatterplot of Dimensions vs. OpenAlex (new Doctypes), Research + Review<br>2,884 Gold ISSNs * 5 years, Inner merge results in 8,309 ISSN-years<br>Selected colors by ISSNs of interestm, typically affected by conference abstracts.')
 # facet_row='DocType_normalized')
 
 figzoomed.add_shape(type="line",
@@ -95,7 +97,7 @@ st.plotly_chart(figzoomed, theme=None)#, template='plotly'
 st.subheader('Residuals, Dim/OpenAlex ratio')
 fig2 = px.histogram(merged_wide, x='Dim/OpenAlex', marginal='box',
              hover_data='ISSN-year_tag',
-             title='Histogram and boxplot of Dim/OpenAlex count, research + review articles for 4824 Gold ISSN-years<br>>1 means Dimensions found more<br>Click and zoom in')
+             title='Histogram and boxplot of Dim/OpenAlex count, research + review articles for 8309 Gold ISSN-years<br>>1 means Dimensions found more, Click and zoom in')
 
 fig2.update_layout(height=500)#, width=1000)
 st.plotly_chart(fig2, theme=None)
@@ -159,7 +161,7 @@ st.subheader('Data sorted by Dim/OpenAlex column, biggest difference first')
 st.write(merged_wide.sort_values(by='Dim/OpenAlex', ascending=False))
 
 
-st.header('Outer merge')
+st.header('Outer merge, work in progress')
 
 
 
